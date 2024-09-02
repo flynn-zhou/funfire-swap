@@ -94,19 +94,23 @@
 //   )
 // }
 
-
+'use client'
 import "../styles/globals.css";
+import React, { useState, useEffect } from "react";
 
 //INTERNAL IMPORT
 import { NavBar, HeroSection } from "../Components/index";
-// import { SwapTokenContextProvider } from "../Context/SwapContext";
+import { SwapTokenContextProvider } from "../Context/SwapContext";
+
 
 const MyApp = ({ Component, pageProps }) => {
+  // console.log('typeof window', typeof window);
+
   // console.log('Component', Component);
   return (<div>
-    {/* <div>wtf</div> */}
+
     {/* <SwapTokenContextProvider> */}
-      <NavBar />
+      {/* <NavBar /> */}
       <HeroSection />
       {/* <Component {...pageProps} /> */}
     {/* </SwapTokenContextProvider> */}

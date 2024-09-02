@@ -1,5 +1,6 @@
 'use client'
-import React, { useState, useContext } from "react";
+
+import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 
 //INTERNAL IMPORT
@@ -8,33 +9,35 @@ import images from "../../assets";
 import { Token, SearchToken } from "../index";
 
 //CONTEXT
-// import { SwapTokenContext } from "../../Context/SwapContext";
-const HeroSection = () => {
+import { SwapTokenContext } from "../../Context/SwapContext";
 
-    //USESTATE
-    const [openSetting, setOpenSetting] = useState(false);
-    const [openToken, setOpenToken] = useState(false);
-    const [openTokensTwo, setOpenTokensTwo] = useState(false);
-  
-    const [tokenSwapOutPut, setTokenSwapOutPut] = useState(0);
-    const [poolMessage, setPoolMessage] = useState("");
-    const [search, setSearch] = useState(false);
-    const [swapAmount, setSwapAmount] = useState(0);
+// import { swapUpdatePrice } from '../../Utils/swapUpdatePrice';
+
+const HeroSection = ({}) => {
+  //USESTATE
+  const [openSetting, setOpenSetting] = useState(false);
+  const [openToken, setOpenToken] = useState(false);
+  const [openTokensTwo, setOpenTokensTwo] = useState(false);
+
+  const [tokenSwapOutPut, setTokenSwapOutPut] = useState(0);
+  const [poolMessage, setPoolMessage] = useState("");
+  const [search, setSearch] = useState(false);
+  const [swapAmount, setSwapAmount] = useState(0);
 
 
-    const {
-      singleSwapToken,
-      connectWallet,
-      account,
-      ether,
-      dai,
-      tokenData,
-      getPrice,
-      swapUpdatePrice,
-    } = { }
-    
+  const {
+    singleSwapToken,
+    connectWallet,
+    account,
+    ether,
+    dai,
+    tokenData,
+    getPrice,
 
-      //TOKEN 1
+  } = useContext(SwapTokenContext);
+
+
+  //TOKEN 1
   const [tokenOne, setTokenOne] = useState({
     name: "",
     image: "",
@@ -51,6 +54,39 @@ const HeroSection = () => {
     tokenAddress: "",
   });
 
+  const callOutPut = async (value) => {
+    const yourAccount = "0x97f991971a37D4Ca58064e6a98FC563F03A71E5c";
+    const deadline = 10;
+    const slippageAmount = 25;
+    const { swapUpdatePrice } = await import('../../Utils/swapUpdatePrice')
+    const data = await swapUpdatePrice(
+      value,
+      slippageAmount,
+      deadline,
+      yourAccount,
+      tokenOne,
+      tokenTwo,
+    );
+    // const data = null;
+    console.log(data);
+
+    setTokenSwapOutPut(data[1]);
+    setSearch(false);
+
+    const poolAddress = "0xc2e9f25be6257c210d7adf0d4cd6e3e881ba25f8";
+    const poolData = await getPrice(value, poolAddress);
+    const message = `${value} ${poolData[2]} = ${poolData[0]} ${poolData[1]}`;
+    console.log(message);
+    setPoolMessage(message);
+  };
+  
+
+  useEffect(() => {
+    // console.log('this is not wahjt ', typeof window);
+
+  }, [])
+
+  //JSX
   return (
     <div className={Style.HeroSection}>
       <div className={Style.HeroSection_box}>
@@ -84,8 +120,9 @@ const HeroSection = () => {
               height={20}
               alt="ether"
             />
-            {tokenOne.name || "ETH"}
+            {tokenOne.symbol || "ETH"}
             <small>{tokenOne.tokenBalance.slice(0, 7)}</small>
+            {/* <small>{ether.slice(0, 7)}</small> */}
           </button>
         </div>
 
@@ -110,7 +147,7 @@ const HeroSection = () => {
               height={20}
               alt="ether"
             />
-            {tokenTwo.name || "ETH"}
+            {tokenTwo.symbol || "ETH"}
             <small>{tokenTwo.tokenBalance.slice(0, 7)}</small>
           </button>
         </div>
@@ -161,7 +198,7 @@ const HeroSection = () => {
         />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default HeroSection
+export default HeroSection;

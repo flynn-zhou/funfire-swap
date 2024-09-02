@@ -9,14 +9,12 @@ import images from "../../assets";
 import { Model, TokenList } from "../index";
 
 //CONTEXT
-// import { SwapTokenContext } from "../../Context/SwapContext";
+import { SwapTokenContext } from "../../Context/SwapContext";
 
 const NavBar = () => {
-  // const { ether, account, networkConnect, connectWallet, tokenData } =
-    // useContext(SwapTokenContext);
-    const account = '123321123321'
-    const connectWallet = () => {}
-    const tokenData = [];
+  const { ether, account, networkConnect, connectWallet, tokenData } =
+    useContext(SwapTokenContext);
+
   const menuItems = [
     {
       name: "Swap",
@@ -34,7 +32,7 @@ const NavBar = () => {
   //USESTATE
   const [openModel, setOpenModel] = useState(false);
   const [openTokenBox, setOpenTokenBox] = useState(false);
-
+  // console.log('tokenData', tokenData);
   return (
     <div className={Style.NavBar}>
       <div className={Style.NavBar_box}>
@@ -69,7 +67,7 @@ const NavBar = () => {
             <div className={Style.NavBar_box_right_box_img}>
               <Image src={images.ether} alt="NetWork" height={30} width={30} />
             </div>
-            {/* <p>{networkConnect}</p> */}
+            <p>{networkConnect}</p>
           </div>
           {account ? (
             <button onClick={() => setOpenTokenBox(true)}>
@@ -87,7 +85,7 @@ const NavBar = () => {
 
       {/* //TOTENLIST COMPONENT */}
       {openTokenBox && (
-        <TokenList tokenDate={tokenData} setOpenTokenBox={setOpenTokenBox} />
+        <TokenList tokenData={tokenData} setOpenTokenBox={setOpenTokenBox} />
       )}
     </div>
   );
