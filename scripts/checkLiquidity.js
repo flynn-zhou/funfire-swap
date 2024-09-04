@@ -1,4 +1,7 @@
-SHO_RAY= '0x5bd6477f4cd963E38E4aAA5FA18A5555716C682B'
+
+require("dotenv").config();
+SHO_RAY = process.env.SHO_RAY;
+// SHO_RAY= '0x5bd6477f4cd963E38E4aAA5FA18A5555716C682B'
 
 const UniswapV3Pool = require("@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json");
 const { Contract } = require("ethers");

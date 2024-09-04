@@ -68,7 +68,7 @@ const Tokens = () => {
     },
   ]);
 
-  // const { topTokensList } = useContext(SwapTokenContext);
+  const { topTokensList } = useContext(SwapTokenContext);
   const [copyAllTokenList, setCopyAllTokenList] = useState(allTokenList);
   const [search, setSearch] = useState("");
   const [searchItem, setSearchItem] = useState(search);
@@ -133,7 +133,7 @@ const Tokens = () => {
           </div>
         </div>
 
-        <AllTokens allTokenList={allTokenList} />
+        <AllTokens allTokenList={topTokensList} />
       </div>
     </div>
   );

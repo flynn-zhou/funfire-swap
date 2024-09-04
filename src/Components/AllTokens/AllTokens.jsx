@@ -37,7 +37,7 @@ const AllTokens = ({ allTokenList }) => {
               <small>
                 <Image src={images.uniswap} alt="logo" width={25} height={25} />
               </small>
-              <small>{el.name}</small>
+              {/* <small>{el.name}</small> */}
               <small>{el.symbol}</small>
             </p>
             <p>{el.volumeUSD.slice(0, 9)}</p>

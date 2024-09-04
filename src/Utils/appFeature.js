@@ -186,3 +186,29 @@ export const connectingWithUserStorageContract = async () => {
     console.log(error);
   }
 };
+
+
+
+//USER CONTRACT CONNECTION---------
+export const fetchSelfCreatedToken = async (signerOrProvider, tokenName, address) => {
+  const contractFile = await import(`../Context/${tokenName}.json`)
+  return  new ethers.Contract(
+    address,
+    contractFile.abi,
+    signerOrProvider
+  );
+}
+
+
+export const connectingWithSelfCreatedToken = async(tokenName, address) => {
+  try {
+    const web3modal = new Web3Modal();
+    const connection = await web3modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = await provider.getSigner();
+    const contract = await fetchSelfCreatedToken(signer, tokenName, address);
+    return contract;
+  } catch (error) {
+    console.log(error);
+  }
+}

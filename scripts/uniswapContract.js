@@ -1,6 +1,10 @@
 const { Contract, ContractFactory, utils, BigNumber } = require("ethers");
 const WETH9 = require("../src/Context/WETH9.json");
 
+const fs = require("fs");
+const { promisify } = require("util");
+
+
 const artifacts = {
     UniswapV3Factory: require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
     SwapRouter: require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json"),
@@ -92,7 +96,7 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
     linkedBytecode,
     signer
     );
-
+    // const nativeCurrencyLabelBytes = utils.formatBytes32String("WETH");
     let nonfungibleTokenPositionDescriptor =
     await NonfungibleTokenPositionDescriptor.deploy(weth.address);
 
@@ -121,6 +125,29 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
     "positionManagerAddress=",
     `'${nonfungiblePositionManager.address}'`
     );
+
+
+    let addresses = [
+      `wethAddress=${weth.address}`,
+      `factoryAddress=${factory.address}`,
+      `swapRouterAddress=${swapRouter.address}`,
+      `nftDescriptorAddress=${nftDescriptor.address}`,
+      `positionDescriptorAddress=${nonfungibleTokenPositionDescriptor.address}`,
+      `positionManagerAddress=${nonfungiblePositionManager.address}`,
+    ];
+    const data = addresses.join("\n");
+
+
+    const writeFile = promisify(fs.writeFile);
+    const filePath = ".env";
+    return writeFile(filePath, data)
+      .then(() => {
+        console.log("Addresses recorded.");
+      })
+      .catch((error) => {
+        console.error("Error logging addresses:", error);
+        throw error;
+      });
 
   }
 

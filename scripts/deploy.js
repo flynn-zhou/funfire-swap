@@ -1,4 +1,6 @@
 const hre = require("hardhat");
+const fs = require("fs");
+const { promisify } = require("util");
 
 async function main() {
   //ERC20 BOO TOKEN
@@ -34,6 +36,27 @@ async function main() {
   const userStorageData = await UserStorageData.deploy();
   await userStorageData.deployed();
   console.log(`UserStorageData deployed to ${userStorageData.address}`);
+
+  
+
+  let addresses = [
+    `booToken=${booToken.address}`,
+    `lifeToken=${lifeToken.address}`,
+    `singleSwapToken=${singleSwapToken.address}`,
+    `swapMultiHop=${swapMultiHop.address}`,
+    `userStorageData=${userStorageData.address}`
+  ];
+  const data = "\n" + addresses.join("\n");
+  const writeFile = promisify(fs.appendFile);
+  const filePath = ".env";
+  return writeFile(filePath, data)
+    .then(() => {
+      console.log("Addresses recorded.");
+    })
+    .catch((error) => {
+      console.error("Error logging addresses:", error);
+      throw error;
+    });
 }
 
 main().catch((error) => {

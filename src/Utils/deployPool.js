@@ -5,8 +5,9 @@ import Web3Modal from "web3modal";
 const bn = require("bignumber.js");
 bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
 
-const UNISWAP_V3_FACTORY_ADDRESS = "0x9581c795DBcaf408E477F6f1908a41BE43093122";
-const NON_FUNGABLE_MANAGER = "0x492844c46CEf2d751433739fc3409B7A4a5ba9A7";
+const UNISWAP_V3_FACTORY_ADDRESS = process.env.factoryAddress;
+const NON_FUNGABLE_MANAGER = process.env.positionManagerAddress;
+
 const artifacts = {
   UniswapV3Factory: require("@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json"),
   NonfungiblePositionManager: require("@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json"),
@@ -56,7 +57,7 @@ export const connectingWithPoolContract = async (
 
 
   const price = encodePriceSqrt(tokenFee1, tokenFee2);
-  console.log('what is the ',createPoolContract);
+  console.log('what is the ', tokenFee1, tokenFee2,  fee, price);
   const transaction = await createPoolContract
     .connect(signer)
     .createAndInitializePoolIfNecessary(address1, address2, fee, price, {

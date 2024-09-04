@@ -27,12 +27,14 @@ const HeroSection = ({}) => {
 
   const {
     singleSwapToken,
+    multiSwapToken,
     connectWallet,
     account,
     ether,
     dai,
     tokenData,
     getPrice,
+    getAllLiquidity
 
   } = useContext(SwapTokenContext);
 
@@ -55,29 +57,36 @@ const HeroSection = ({}) => {
   });
 
   const callOutPut = async (value) => {
-    const yourAccount = "0x97f991971a37D4Ca58064e6a98FC563F03A71E5c";
-    const deadline = 10;
-    const slippageAmount = 25;
-    const { swapUpdatePrice } = await import('../../Utils/swapUpdatePrice')
-    const data = await swapUpdatePrice(
-      value,
-      slippageAmount,
-      deadline,
-      yourAccount,
-      tokenOne,
-      tokenTwo,
-    );
-    // const data = null;
-    console.log(data);
+    let swapPrice = 1;
+    console.log('getAllLiquidity', getAllLiquidity);
+    getAllLiquidity.forEach((item) => {
+      if(item.token0 === tokenOne.tokenAddress && item.token1 === tokenTwo.tokenAddress) {
+        swapPrice=item.sqrtPriceX96._hex ** 2 / 2 ** 192;
+      }
+    })
+    // const yourAccount = "0x97f991971a37D4Ca58064e6a98FC563F03A71E5c";
+    // const deadline = 10;
+    // const slippageAmount = 25;
+    // const { swapUpdatePrice } = await import('../../Utils/swapUpdatePrice')
+    // const data = await swapUpdatePrice(
+    //   value,
+    //   slippageAmount,
+    //   deadline,
+    //   yourAccount,
+    //   tokenOne,
+    //   tokenTwo,
+    // );
+    // // const data = null;
+    // console.log(data);
 
-    setTokenSwapOutPut(data[1]);
+    setTokenSwapOutPut((value * swapPrice).toFixed(2));
     setSearch(false);
 
-    const poolAddress = "0xc2e9f25be6257c210d7adf0d4cd6e3e881ba25f8";
-    const poolData = await getPrice(value, poolAddress);
-    const message = `${value} ${poolData[2]} = ${poolData[0]} ${poolData[1]}`;
-    console.log(message);
-    setPoolMessage(message);
+    // const poolAddress = "0xc2e9f25be6257c210d7adf0d4cd6e3e881ba25f8";
+    // const poolData = await getPrice(value, poolAddress);
+    // const message = `${value} ${poolData[2]} = ${poolData[0]} ${poolData[1]}`;
+    // console.log(message);
+    // setPoolMessage(message);
   };
   
 
@@ -109,8 +118,8 @@ const HeroSection = ({}) => {
             placeholder="0"
             onChange={(e) => (
               callOutPut(e.target.value),
-              setSwapAmount(e.target.value),
-              setSearch(true)
+              setSwapAmount(e.target.value)
+              // setSearch(true)
             )}
           />
           <button onClick={() => setOpenToken(true)}>
