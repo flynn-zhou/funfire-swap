@@ -6,17 +6,17 @@ import Web3Modal from "web3modal";
 import { Token, CurrencyAmount, TradeType, Percent } from "@uniswap/sdk-core";
 import axios from "axios";
 import {
-    checkIfWalletConnected,
-    connectWallet,
-    connectingWithBooToken,
-    connectingWithLIfeToken,
-    connectingWithSelfCreatedToken,
-    connectingWithSingleSwapToken,
-    connectingWithIWTHToken,
-    connectingWithDAIToken,
-    connectingWithUserStorageContract,
-    connectingWithMultiHopContract,
-  } from "../Utils/appFeature";
+  checkIfWalletConnected,
+  connectWallet,
+  connectingWithBooToken,
+  connectingWithLIfeToken,
+  connectingWithSelfCreatedToken,
+  connectingWithSingleSwapToken,
+  connectingWithIWTHToken,
+  connectingWithDAIToken,
+  connectingWithUserStorageContract,
+  connectingWithMultiHopContract,
+} from "../Utils/appFeature";
 
 import { IWETHABI } from "./constants";
 import ERC20 from "./ERC20.json";
@@ -41,10 +41,13 @@ export const SwapTokenContextProvider = ({ children }) => {
   const [weth9, setWeth9] = useState("");
   const [dai, setDai] = useState("");
   const [tokenData, setTokenData] = useState([]);
-  const [ getAllLiquidity, setGetAllLiquidity] = useState([]);
+  const [getAllLiquidity, setGetAllLiquidity] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [openError, setOpenError] = useState(false);
 
-    //TOP TOKENS
-    const [topTokensList, setTopTokensList] = useState([]);
+  //TOP TOKENS
+  const [topTokensList, setTopTokensList] = useState([]);
 
   const addToken = [
 
@@ -64,6 +67,21 @@ export const SwapTokenContextProvider = ({ children }) => {
     // "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     // "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
   ];
+
+  const gerProvider = async (network) => {
+    if(network === 'sepolia') {
+      const SEPOLIA_URL = "https://eth-sepolia.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw"
+      const provider = new ethers.providers.JsonRpcProvider(SEPOLIA_URL);
+      return provider
+    }  else {
+      const web3modal = new Web3Modal();
+      const connection = await web3modal.connect();
+      const provider = new ethers.providers.Web3Provider(connection);
+      return provider
+    }
+
+  }
+
   //FETCH DATA
   const fetchingData = async () => {
     try {
@@ -76,14 +94,16 @@ export const SwapTokenContextProvider = ({ children }) => {
 
       setAccount(userAccount);
       //CREATE PROVIDER
-      const web3modal = new Web3Modal();
-      const connection = await web3modal.connect();
-      const provider = new ethers.providers.Web3Provider(connection);
+      const provider = await gerProvider('')
+      const signer = provider.getSigner();
+
       // console.log('provider123', await provider.getSigner().getAddress());
       //CHECK Balance
       const balance = await provider.getBalance(userAccount);
+
       const convertBal = BigNumber.from(balance).toString();
       const ethValue = ethers.utils.formatEther(convertBal);
+      console.log('balance', ethValue);
       setEther(ethValue);
 
 
@@ -95,6 +115,7 @@ export const SwapTokenContextProvider = ({ children }) => {
       //ALL TOKEN BALANCE AND DATA
       addToken.map(async (el, i) => {
         //GETTING CONTRACT
+        console.log('wtf is el', el);
         const contract = new ethers.Contract(el, ERC20, provider);
 
         //GETTING BALANCE OF TOKEN
@@ -113,18 +134,18 @@ export const SwapTokenContextProvider = ({ children }) => {
           tokenAddress: el,
         });
       });
-      console.log('tmpTokenArry',  tmpTokenArry, tokenData);
+      console.log('tmpTokenArry', tmpTokenArry, tokenData);
       setTokenData(tmpTokenArry)
 
       // //GET LIQUDITY
       const userStorageData = await connectingWithUserStorageContract();
       const userLiquidity = await userStorageData.getAllTransactions();
-      console.log('userLiquidity',  userLiquidity);
+      console.log('userLiquidity', userLiquidity);
 
 
       let tmpLiquidityArr = []
-      let promiseTogetAll =  new Promise((resolve, reject) => {
-        userLiquidity.forEach( async(el, i) => {
+      let promiseTogetAll = new Promise((resolve, reject) => {
+        userLiquidity.forEach(async (el, i) => {
           console.log('hello there', el)
           const liquidityData = await getLiquidityData(
             el.poolAddress,
@@ -133,7 +154,7 @@ export const SwapTokenContextProvider = ({ children }) => {
           );
           console.log('liquidityData', liquidityData);
           tmpLiquidityArr.push(liquidityData);
-          if(i === userLiquidity.length - 1) {
+          if (i === userLiquidity.length - 1) {
             resolve()
           }
         })
@@ -143,7 +164,7 @@ export const SwapTokenContextProvider = ({ children }) => {
         setGetAllLiquidity(tmpLiquidityArr)
       })
       // console.log('execuseme2', tmpLiquidityArr);
- 
+
 
       // const wth = await connectingWithIWTHToken()
       // const userBalancewth = await wth.balanceOf(userAccount);
@@ -158,31 +179,9 @@ export const SwapTokenContextProvider = ({ children }) => {
       // const convertTokenBalDai = ethers.utils.formatEther(tokenLeftdai);
       // setDai(convertTokenBalDai)
       // console.log('convertTokenBalDai', convertTokenBalDai)
-      const URL = "https://gateway.thegraph.com/api/4e93311b7999e13e8c95ccb52c2d4d4c/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV";
 
-      const query = `
-      {
-        tokens(orderBy: volumeUSD, orderDirection: desc, first:20){
-          id
-          name
-          symbol
-           decimals
-          volume
-          volumeUSD
-           totalSupply
-           feesUSD
-           txCount
-           poolCount
-           totalValueLockedUSD
-           totalValueLocked
-           derivedETH
-        }
-      }
-      `;
-
-      const axiosData = await axios.post(URL, { query: query });
-      console.log(axiosData.data.data.tokens);
-      setTopTokensList(axiosData.data.data.tokens);
+      // console.log(axiosData.data.data.tokens);
+      // setTopTokensList(axiosData.data.data.tokens);
 
     } catch (error) {
       console.log(error);
@@ -190,124 +189,131 @@ export const SwapTokenContextProvider = ({ children }) => {
   };
 
 
-  
-
- //SINGL SWAP TOKEN
- const singleSwapToken = async ({ token1, token2, swapAmount }) => {
-  console.log(
-    token1.tokenAddress.tokenAddress,
-    token2.tokenAddress.tokenAddress,
-    swapAmount
-  );
-  try {
-    let singleSwapToken;
-    let weth;
-    let dai;
-    singleSwapToken = await connectingWithSingleSwapToken();
-    // console.log('singleSwapToken'. singleSwapToken);
-    weth = await connectingWithIWTHToken();
-    // dai = await connectingWithDAIToken();
-
-    // let tokenOneContract = await connectingWithIWTHToken(token1.tokenAddress)
-
-    let token1Contract = await connectingWithSelfCreatedToken(token1.name, token1.tokenAddress)
-    let token2Contract = await connectingWithSelfCreatedToken(token2.name, token2.tokenAddress)
 
 
-    const decimals0 = 18;
-    const inputAmount = swapAmount;
-    const amountIn = ethers.utils.parseUnits(
-      inputAmount.toString(),
-      decimals0
-    );
-      
-    // console.log('tokenOneContract', tokenOneContract);
-    console.log('token1', token1)
-    console.log('token2', token2)
+  //SINGL SWAP TOKEN
+  const singleSwapToken = async ({ token1, token2, swapAmount }) => {
+    setLoading(true)
+    try {
+      const provider = await gerProvider('')
+      let singleSwapToken;
+      let weth;
+      let dai;
+      singleSwapToken = await connectingWithSingleSwapToken();
+      // console.log('singleSwapToken'. singleSwapToken);
+      weth = await connectingWithIWTHToken();
+      // dai = await connectingWithDAIToken();
 
-    // await weth.deposit({ value: amountIn });
-    // console.log(amountIn);
-    await token1Contract.approve(singleSwapToken.address, amountIn);
-    //SWAP
+      // let tokenOneContract = await connectingWithIWTHToken(token1.tokenAddress)
 
-    const transaction = await singleSwapToken.swapExactInputSingle(
-      token1.tokenAddress,
-      token2.tokenAddress,
-      amountIn,
-      {
-        gasLimit: 300000,
-      }
-    );
-    await transaction.wait();
-    console.log('transaction', transaction);
-    const balance = await token2Contract.balanceOf(account);
-    const transferAmount = BigNumber.from(balance).toString();
-    const ethValue = ethers.utils.formatEther(transferAmount);
-    setDai(ethValue);
-    console.log("token2Contract balance:", ethValue);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      let token1Contract = await connectingWithSelfCreatedToken(token1.name, token1.tokenAddress)
+      let token2Contract = await connectingWithSelfCreatedToken(token2.name, token2.tokenAddress)
 
 
+      const decimals0 = 18;
+      const inputAmount = swapAmount;
+      const amountIn = ethers.utils.parseUnits(
+        inputAmount.toString(),
+        decimals0
+      );
 
- //Multi SWAP TOKEN
- const multiSwapToken = async ({ token1, token2, swapAmount }) => {
-  // alert('123')
-  console.log(
-    token1,
-    token2,
-    swapAmount
-  );
-  try {
-    let multiSwapToken;
-    let weth;
-    let dai;
-    multiSwapToken = await connectingWithMultiHopContract();
-    // console.log('singleSwapToken'. singleSwapToken);
-    weth = await connectingWithIWTHToken();
-    let token1Contract = await connectingWithSelfCreatedToken(token1.name, token1.tokenAddress)
-    let token2Contract = await connectingWithSelfCreatedToken(token2.name, token2.tokenAddress)
-    console.log('token1Contract', token1Contract, token2Contract)
-    // let tokenOneContract = await connectingWithIWTHToken(token1.tokenAddress)
+      // console.log('tokenOneContract', tokenOneContract);
+      console.log('token1', token1, inputAmount, amountIn)
+      console.log('token2', token2)
+      console.log('singleSwapToken', singleSwapToken.address, singleSwapToken)
 
 
-    const decimals0 = 18;
-    const inputAmount = swapAmount;
-    const amountIn = ethers.utils.parseUnits(
-      inputAmount.toString(),
-      decimals0
-    );
-      
-    // console.log('tokenOneContract', tokenOneContract);
-    console.log('token1 ', token1)
-    console.log('token2 ', token2)
+      // await weth.deposit({ value: amountIn });
+      // console.log(amountIn);
+      const approveTrans = await token1Contract.approve(singleSwapToken.address, amountIn);
+      // await approveTrans.wait()
+      const receipt = await provider.waitForTransaction(approveTrans.hash, 6, 0);
+      console.log("receipt", receipt);
+      // provider
+      //SWAP
 
-    await weth.deposit({ value: amountIn });
-    // console.log(amountIn);
-    await weth.approve(multiSwapToken.address, amountIn);
-    //SWAP
+      const transaction = await singleSwapToken.swapExactInputSingle(
+        token1.tokenAddress,
+        token2.tokenAddress,
+        amountIn,
+        {
+          gasLimit: 300000,
+        }
+      );
+      await transaction.wait();
+      console.log('transaction', transaction);
+      const balance = await token2Contract.balanceOf(account);
+      const transferAmount = BigNumber.from(balance).toString();
+      const ethValue = ethers.utils.formatEther(transferAmount);
+      setDai(ethValue);
+      console.log("token2Contract balance:", ethValue);
+      setLoading(false)
+      setError('Swap Success')
+      setOpenError(true)
+    } catch (error) {
+      setLoading(false)
+      console.log(error);
+    }
+  };
 
-    const transaction = await multiSwapToken.swapExactInputMultihop(
-      token1.tokenAddress,
-      token2.tokenAddress,
-      amountIn,
-      {
-        gasLimit: 300000,
-      }
-    );
-    await transaction.wait();
-    console.log(transaction);
-    const balance = await token2Contract.balanceOf(account);
-    const transferAmount = BigNumber.from(balance).toString();
-    const ethValue = ethers.utils.formatEther(transferAmount);
-    // setDai(ethValue);
-    console.log("token2 balance:", ethValue);
-  } catch (error) {
-    console.log(error);
-  }
-};
+
+
+  //Multi SWAP TOKEN
+  // const multiSwapToken = async ({ token1, token2, swapAmount }) => {
+  //   // alert('123')
+  //   console.log(
+  //     token1,
+  //     token2,
+  //     swapAmount
+  //   );
+  //   try {
+  //     let multiSwapToken;
+  //     let weth;
+  //     let dai;
+  //     multiSwapToken = await connectingWithMultiHopContract();
+  //     // console.log('singleSwapToken'. singleSwapToken);
+  //     weth = await connectingWithIWTHToken();
+  //     let token1Contract = await connectingWithSelfCreatedToken(token1.name, token1.tokenAddress)
+  //     let token2Contract = await connectingWithSelfCreatedToken(token2.name, token2.tokenAddress)
+  //     console.log('token1Contract', token1Contract, token2Contract)
+  //     // let tokenOneContract = await connectingWithIWTHToken(token1.tokenAddress)
+
+
+  //     const decimals0 = 18;
+  //     const inputAmount = swapAmount;
+  //     const amountIn = ethers.utils.parseUnits(
+  //       inputAmount.toString(),
+  //       decimals0
+  //     );
+
+  //     // console.log('tokenOneContract', tokenOneContract);
+  //     console.log('token1 ', token1)
+  //     console.log('token2 ', token2)
+
+  //     await weth.deposit({ value: amountIn });
+  //     // console.log(amountIn);
+  //     await weth.approve(multiSwapToken.address, amountIn);
+  //     //SWAP
+
+  //     const transaction = await multiSwapToken.swapExactInputMultihop(
+  //       token1.tokenAddress,
+  //       token2.tokenAddress,
+  //       amountIn,
+  //       {
+  //         gasLimit: 300000,
+  //       }
+  //     );
+  //     await transaction.wait();
+  //     console.log(transaction);
+  //     const balance = await token2Contract.balanceOf(account);
+  //     const transferAmount = BigNumber.from(balance).toString();
+  //     const ethValue = ethers.utils.formatEther(transferAmount);
+  //     // setDai(ethValue);
+  //     console.log("token2 balance:", ethValue);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
 
   //CREATE AND ADD LIQUIDITY
@@ -322,7 +328,9 @@ export const SwapTokenContextProvider = ({ children }) => {
     tokenAmmountOne,
     tokenAmmountTwo,
   }) => {
+
     try {
+      setLoading(true)
       console.log(
         tokenAddress0,
         tokenAddress1,
@@ -347,7 +355,7 @@ export const SwapTokenContextProvider = ({ children }) => {
       );
 
       const poolAddress = createPool;
-      console.log('poolAddress',poolAddress);
+      console.log('poolAddress', poolAddress);
 
       //CREATE LIQUIDITY
       const info = await addLiquidityExternal(
@@ -368,10 +376,17 @@ export const SwapTokenContextProvider = ({ children }) => {
         tokenAddress0,
         tokenAddress1
       );
+      setLoading(false)
+      setError('Create pool success')
+      setOpenError(true)
     } catch (error) {
+      const errormsg = error.message ? error.message : error;
+      setLoading(false)
+      setError(errormsg.length <= 30 ? errormsg : errormsg.toString().slice(0, 30) + '.....');
+      setOpenError(true)
       console.log(error);
     }
-  }; 
+  };
 
   useEffect(() => {
     fetchingData()
@@ -379,36 +394,41 @@ export const SwapTokenContextProvider = ({ children }) => {
       // alert('123')
       // @ts-ignore
       console.log('here i am ')
-        window.Browser = {
-          T: () => {
-          }
-        };
-      }
+      window.Browser = {
+        T: () => {
+        }
+      };
+    }
     // singleSwapToken();
   }, []);
   // const topTokensList = []
-    return (
-      <SwapTokenContext.Provider
-        value={{
-         account,
-         weth9,
-         dai,
-         networkConnect,
-         ether,
-         tokenData,
-         getAllLiquidity,
-         topTokensList,
-         connectWallet, 
-         singleSwapToken,
-         multiSwapToken,
-         getPrice,
-         swapUpdatePrice,
-         addLiquidityExternal,
-         createLiquidityAndPool
-        }}
-      >
-        {children}
-      </SwapTokenContext.Provider>
-    );
-  };
-  
+  return (
+    <SwapTokenContext.Provider
+      value={{
+        account,
+        weth9,
+        dai,
+        networkConnect,
+        ether,
+        tokenData,
+        getAllLiquidity,
+        topTokensList,
+        loading,
+        setLoading,
+        openError,
+        error,
+        setError,
+        setOpenError,
+        connectWallet,
+        singleSwapToken,
+        // multiSwapToken,
+        getPrice,
+        swapUpdatePrice,
+        addLiquidityExternal,
+        createLiquidityAndPool
+      }}
+    >
+      {children}
+    </SwapTokenContext.Provider>
+  );
+};

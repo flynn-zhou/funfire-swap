@@ -16,7 +16,7 @@ const Model = ({ setOpenModel, connectWallet }) => {
           <p>Connect a wallet</p>
           <div className={Style.Model_box_heading_img}>
             <Image
-              src={images.close}
+              src={images.setting}
               alt="logo"
               width={50}
               height={50}

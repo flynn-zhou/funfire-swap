@@ -9,7 +9,7 @@ contract SingleSwapToken {
     //     ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     ISwapRouter public  swapRouter =
-        ISwapRouter(0x72aC6A36de2f72BD39e9c782e9db0DCc41FEbfe2);
+        ISwapRouter(0xD6601e25cF43CAc433A23cB95a39D38012B2e9f0);
     function swapExactInputSingle(address token1, address token2, uint amountIn)
         external
         returns (uint amountOut)

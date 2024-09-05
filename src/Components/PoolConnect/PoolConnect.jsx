@@ -5,6 +5,7 @@ import Image from "next/image";
 //INTERNAL IMPORT
 import Style from "./PoolConnect.module.css";
 import images from "../../assets";
+import { BigNumber } from "ethers";
 
 const PoolConnect = ({ setClosePool, getAllLiquidity, account }) => {
   console.log('getAllLiquidity', getAllLiquidity, getAllLiquidity.length);
@@ -32,7 +33,7 @@ const PoolConnect = ({ setClosePool, getAllLiquidity, account }) => {
         ) : (
           <div className={Style.PoolConnect_box_liquidity}>
             <div className={Style.PoolConnect_box_liquidity_header}>
-              <p>Your Position {getAllLiquidity.length}</p>
+              <p>Total Position: {getAllLiquidity.length}</p>
             </div>
 
             {getAllLiquidity.map((el, i) => (
@@ -42,34 +43,25 @@ const PoolConnect = ({ setClosePool, getAllLiquidity, account }) => {
                     <small className={Style.mark}>
                       {el.poolExample.token0.name}
                     </small>
-                    {""}
+                    {" / "}
                     <small className={Style.mark}>
                       {el.poolExample.token1.name}
                     </small>
-                    {""}
+                    {" "}
                     <span className={(Style.paragraph, Style.hide)}>
-                      {el.poolExample.token0.name} /{el.poolExample.token1.name}
+                      {/* {el.poolExample.token0.name} / {el.poolExample.token1.name} */}
                     </span>
-                    {""}
+                    {" Fee:"}
                     <span className={Style.paragraph}>{el.fee}</span>
-                    {""}
+                    {" "}
                   </p>
                   <p className={Style.highlight}>In Range</p>
                 </div>
                 <div className={Style.PoolConnect_box_liquidity_list_info}>
+
                   <p>
-                    <small>Min: 0.999</small>
-                    {""}
-                    <span>
-                      {el.poolExample.token0.name} per {""}{" "}
-                      {el.poolExample.token1.name}
-                    </span>
-                    {""} <span>--------</span> <small>Max: 1.000</small>
-                    {""}
-                    <span className={Style.hide}>
-                      {el.poolExample.token0.name} per {""}{" "}
-                      {el.poolExample.token1.name}
-                    </span>
+                    <small>Liquidity: {el.liquidity}</small>
+
                   </p>
                 </div>
               </div>

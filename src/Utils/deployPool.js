@@ -57,11 +57,11 @@ export const connectingWithPoolContract = async (
 
 
   const price = encodePriceSqrt(tokenFee1, tokenFee2);
-  console.log('what is the ', tokenFee1, tokenFee2,  fee, price);
+  console.log('what is the ', tokenFee1, tokenFee2,  fee, price, signer);
   const transaction = await createPoolContract
     .connect(signer)
     .createAndInitializePoolIfNecessary(address1, address2, fee, price, {
-      gasLimit: 30000000,
+      gasLimit: 5000000,
     });
 
   await transaction.wait();

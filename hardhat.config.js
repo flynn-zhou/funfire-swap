@@ -37,6 +37,25 @@ module.exports = {
     // chainId: 31337,
     // blcokConfirmations: 6,
     // },
+    holesky: {
+      url: "https://ethereum-holesky.publicnode.com",
+      accounts: ['f399521ee015709075d5ea1c7d36546421ebbd045ced22f68dacc33846bf9631'],
+      // saveDeployments: true,
+      chainId: 17000,
+      blcokConfirmations: 6,
+      // gasPrice: 204369036266,
+      // ignition: {
+      //   maxFeePerGasLimit: 500_000_000_000n, // 50 gwei
+      //   maxPriorityFeePerGas: 20_000_000_000n, // 2 gwei
+      // },
+  },
+    sepolia: {
+      url: "https://eth-sepolia.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw",
+      accounts: ['f399521ee015709075d5ea1c7d36546421ebbd045ced22f68dacc33846bf9631'],
+      saveDeployments: true,
+      chainId: 11155111,
+      blcokConfirmations: 6,
+  },
     hardhat: {
       forking: {
         url: "https://eth-mainnet.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw",

@@ -43,12 +43,26 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
 
   async function main() {
     const [signer] = await ethers.getSigners();
+
+
+    let NFTDescriptor = new ContractFactory(
+      artifacts.NFTDescriptor.abi,
+      artifacts.NFTDescriptor.bytecode,
+      signer
+    );
+    let nftDescriptor = await NFTDescriptor.deploy();
+    await nftDescriptor.deployTransaction.wait()
+    console.log('nftDescriptor', nftDescriptor.address);
+
+
     let Weth = new ContractFactory(
-        artifacts.WETH9.abi,
-        artifacts.WETH9.bytecode,
-        signer
+      artifacts.WETH9.abi,
+      artifacts.WETH9.bytecode,
+      signer
     );
     let weth = await Weth.deploy();
+    await weth.deployTransaction.wait()
+    console.log('weth', weth.address);
 
     let Factory = new ContractFactory(
         artifacts.UniswapV3Factory.abi,
@@ -56,6 +70,8 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
         signer
       );
     let factory = await Factory.deploy();
+    await factory.deployTransaction.wait()
+    console.log('factory', factory.address);
 
     let SwapRouter = new ContractFactory(
         artifacts.SwapRouter.abi,
@@ -63,14 +79,8 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
         signer
       );
     let swapRouter = await SwapRouter.deploy(factory.address, weth.address);
-
-
-    let NFTDescriptor = new ContractFactory(
-        artifacts.NFTDescriptor.abi,
-        artifacts.NFTDescriptor.bytecode,
-        signer
-      );
-    let nftDescriptor = await NFTDescriptor.deploy();
+    await swapRouter.deployTransaction.wait()
+    console.log('swapRouter', swapRouter.address);
 
     const linkedBytecode = linkLibraries(
         {
@@ -99,6 +109,8 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
     // const nativeCurrencyLabelBytes = utils.formatBytes32String("WETH");
     let nonfungibleTokenPositionDescriptor =
     await NonfungibleTokenPositionDescriptor.deploy(weth.address);
+    await nonfungibleTokenPositionDescriptor.deployTransaction.wait()
+    console.log('nonfungibleTokenPositionDescriptor', nonfungibleTokenPositionDescriptor.address);
 
 
     let NonfungiblePositionManager = new ContractFactory(
@@ -111,6 +123,8 @@ const linkLibraries = ({ bytecode, linkReferences }, libraries) => {
         weth.address,
         nonfungibleTokenPositionDescriptor.address
       );
+      await nonfungiblePositionManager.deployTransaction.wait()
+      console.log('nonfungiblePositionManager', nonfungiblePositionManager.address);
 
     console.log("wethAddress=", `'${weth.address}'`);
     console.log("factoryAddress=", `'${factory.address}'`);

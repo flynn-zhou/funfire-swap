@@ -11,9 +11,31 @@ import { Model, TokenList } from "../index";
 //CONTEXT
 import { SwapTokenContext } from "../../Context/SwapContext";
 
+import PuffLoader from "react-spinners/PuffLoader";
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
+const override = {
+  position: "absolute",
+  top: 100,
+  left: `calc(45% - 25px)`,
+  top: `calc(50% - 25px)`,
+  display: "block",
+  margin: "0 auto",
+  // borderColor: "red",
+};
+
 const NavBar = () => {
-  const { ether, account, networkConnect, connectWallet, tokenData } =
+  const { ether, account, networkConnect, connectWallet, tokenData, loading, setLoading,
+    openError,
+    setOpenError,
+    error, } =
     useContext(SwapTokenContext);
+
+  const notify = (message) => toast(message);
 
   const menuItems = [
     {
@@ -32,6 +54,17 @@ const NavBar = () => {
   //USESTATE
   const [openModel, setOpenModel] = useState(false);
   const [openTokenBox, setOpenTokenBox] = useState(false);
+  let [color, setColor] = useState("#4C5773");
+
+  useEffect(() => {
+    if (openError) {
+      notify(error)
+      setTimeout(() => {
+        setOpenError(false)
+      }, 500)
+    }
+  }, [openError])
+
   // console.log('tokenData', tokenData);
   return (
     <div className={Style.NavBar}>
@@ -87,6 +120,37 @@ const NavBar = () => {
       {openTokenBox && (
         <TokenList tokenData={tokenData} setOpenTokenBox={setOpenTokenBox} />
       )}
+
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        theme="dark"
+      // hideProgressBar={false}
+      // newestOnTop={false}
+      // closeOnClick
+      // rtl={false}
+      // pauseOnFocusLoss
+      // draggable
+      // pauseOnHover
+      // theme="light"
+      // transition="Bounce"
+      />
+
+      {
+        loading &&
+
+        <div style={{ width: '100%', height: '100vh', position: 'fixed', zIndex: '22222222'}}>
+          <PuffLoader
+            color={color}
+            loading={loading}
+            cssOverride={override}
+            size={50}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        </div>
+
+      }
     </div>
   );
 };

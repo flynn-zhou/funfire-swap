@@ -6,12 +6,15 @@ async function main() {
   
     Shoaib = await ethers.getContractFactory("Shoaib");
     shoaib = await Shoaib.deploy();
+    await shoaib.deployTransaction.wait()
   
     Rayyan = await ethers.getContractFactory("Rayyan");
     rayyan = await Rayyan.deploy();
+    await rayyan.deployTransaction.wait()
   
     PopUp = await ethers.getContractFactory("PopUp");
     popUp = await PopUp.deploy();
+    await popUp.deployTransaction.wait()
 
     // await shoaib.connect(owner).mint(signer2.address, ethers.utils.parseEther("100000"))
 

@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
+import axios from "axios";
 
 //INTERNAL IMPORT
 import Style from "../../styles/Tokens.module.css";
@@ -9,72 +10,16 @@ import { AllTokens } from "../../Components/index";
 //CONTEXT
 import { SwapTokenContext } from "../../Context/SwapContext";
 const Tokens = () => {
-  const [allTokenList, setAllTokenList] = useState([
-    {
-      number: 1,
-      image: images.etherlogo,
-      name: "Ether",
-      symbol: "ETH",
-      price: "$12,345",
-      change: "+ 234.5",
-      tvl: "$7894.5M",
-      volume: "$716.5 M",
-      volumeUSD:"$716.5 M",
-      totalValueLockedUSD:"$716.5 M",
-                        txCount: "123",
-                  totalSupply: "123"
-    },
-    {
-      number: 2,
-      image: images.etherlogo,
-      name: "USDC Coin",
-      symbol: "USDC",
-      price: "$12,345",
-      change: "+ 234.5",
-      tvl: "$7894.5M",
-      volume: "$716.5 M",
-            volumeUSD:"$716.5 M",
-                  totalValueLockedUSD:"$716.5 M",
-                                    txCount: "123",
-                  totalSupply: "123"
-    },
-    {
-      number: 3,
-      image: images.etherlogo,
-      name: "Wrapped BTC",
-      symbol: "WBTC",
-      price: "$12,345",
-      change: "+ 234.5",
-      tvl: "$7894.5M",
-      volume: "$716.5 M",
-            volumeUSD:"$716.5 M",
-                  totalValueLockedUSD:"$716.5 M",
-                                    txCount: "123",
-                  totalSupply: "123"
-    },
-    {
-      number: 4,
-      image: images.etherlogo,
-      name: "Uniswap",
-      symbol: "UNI",
-      price: "$12,345",
-      change: "+ 234.5",
-      tvl: "$7894.5M",
-      volume: "$716.5 M",
-            volumeUSD:"$716.5 M",
-                  totalValueLockedUSD:"$716.5 M",
-                  txCount: "123",
-                  totalSupply: "123"
-    },
-  ]);
-
-  const { topTokensList } = useContext(SwapTokenContext);
-  const [copyAllTokenList, setCopyAllTokenList] = useState(allTokenList);
+  
+  const { setLoading } = useContext(SwapTokenContext);
+  const [topTokenList, setTopTokenList] = useState([]);
+  const [copyAllTokenList, setCopyAllTokenList] = useState(topTokenList);
   const [search, setSearch] = useState("");
   const [searchItem, setSearchItem] = useState(search);
 
+
   const onHandleSearch = (value) => {
-    const filteredTokens = allTokenList.filter(({ name }) =>
+    const filteredTokens = topTokenList.filter(({ name }) =>
       name.toLowerCase().includes(value.toLowerCase())
     );
 
@@ -86,10 +31,42 @@ const Tokens = () => {
   };
 
   const onClearSearch = () => {
-    if (allTokenList.length && copyAllTokenList.length) {
+    if (topTokenList.length && copyAllTokenList.length) {
       setAllTokenList(copyAllTokenList);
     }
   };
+ 
+  useEffect(()=> {
+
+    const fetchTokens = async () => {
+      const URL = "https://gateway.thegraph.com/api/4e93311b7999e13e8c95ccb52c2d4d4c/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV";
+      const query = `
+      {
+        tokens(orderBy: volumeUSD, orderDirection: desc, first:20){
+          id
+          name
+          symbol
+           decimals
+          volume
+          volumeUSD
+           totalSupply
+           feesUSD
+           txCount
+           poolCount
+           totalValueLockedUSD
+           totalValueLocked
+           derivedETH
+        }
+      }
+      `;
+      setLoading(true);
+      const axiosData = await axios.post(URL, { query: query });
+      setTopTokenList(axiosData.data.data.tokens)
+      setLoading(false)
+    }
+    fetchTokens()
+
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchItem), 1000);
@@ -133,7 +110,7 @@ const Tokens = () => {
           </div>
         </div>
 
-        <AllTokens allTokenList={topTokensList} />
+        <AllTokens allTokenList={topTokenList} />
       </div>
     </div>
   );

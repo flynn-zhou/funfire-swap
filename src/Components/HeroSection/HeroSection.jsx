@@ -34,7 +34,9 @@ const HeroSection = ({}) => {
     dai,
     tokenData,
     getPrice,
-    getAllLiquidity
+    getAllLiquidity,
+    setError,
+    setOpenError,
 
   } = useContext(SwapTokenContext);
 
@@ -58,7 +60,6 @@ const HeroSection = ({}) => {
 
   const callOutPut = async (value) => {
     let swapPrice = 1;
-    console.log('getAllLiquidity', getAllLiquidity);
     getAllLiquidity.forEach((item) => {
       if(item.token0 === tokenOne.tokenAddress && item.token1 === tokenTwo.tokenAddress) {
         swapPrice=item.sqrtPriceX96._hex ** 2 / 2 ** 192;
@@ -103,7 +104,7 @@ const HeroSection = ({}) => {
           <p>Swap</p>
           <div className={Style.HeroSection_box_heading_img}>
             <Image
-              src={images.close}
+              src={images.setting}
               alt="image"
               width={50}
               height={50}
@@ -129,7 +130,7 @@ const HeroSection = ({}) => {
               height={20}
               alt="ether"
             />
-            {tokenOne.symbol || "ETH"}
+            {tokenOne.symbol || "select"}
             <small>{tokenOne.tokenBalance.slice(0, 7)}</small>
             {/* <small>{ether.slice(0, 7)}</small> */}
           </button>
@@ -156,7 +157,7 @@ const HeroSection = ({}) => {
               height={20}
               alt="ether"
             />
-            {tokenTwo.symbol || "ETH"}
+            {tokenTwo.symbol || "select"}
             <small>{tokenTwo.tokenBalance.slice(0, 7)}</small>
           </button>
         </div>
@@ -170,12 +171,18 @@ const HeroSection = ({}) => {
         {account ? (
           <button
             className={Style.HeroSection_box_btn}
-            onClick={() =>
-              singleSwapToken({
-                token1: tokenOne,
-                token2: tokenTwo,
-                swapAmount,
-              })
+            onClick={() => {
+              if(!tokenOne.name || !tokenTwo.name) {
+                setError('Select token pair to swap')
+                setOpenError(true)
+                return;
+              }
+                singleSwapToken({
+                  token1: tokenOne,
+                  token2: tokenTwo,
+                  swapAmount,
+                })
+              }
             }
           >
             Swap

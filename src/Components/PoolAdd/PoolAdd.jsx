@@ -1,18 +1,21 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext} from "react";
 import Image from "next/image";
 
 //INTERNAL IMPORT
 import images from "../../assets";
 import Style from "./PoolAdd.module.css";
 import { Token, SearchToken } from "../../Components/index.js";
+import { SwapTokenContext } from "../../Context/SwapContext";
 
 const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
+  const { setError, setOpenError } =
+  useContext(SwapTokenContext);
   const [openModel, setOpenModel] = useState(false);
   const [openTokenModelOne, setOpenTokenModelOne] = useState(false);
   const [openTokenModelTwo, setOpenTokenModelTwo] = useState(false);
   const [active, setActive] = useState(1);
-  const [openFee, setOpenFee] = useState(false);
+  const [openFee, setOpenFee] = useState(true);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(0);
 
@@ -73,6 +76,7 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
               width={30}
               height={30}
               onClick={() => setClosePool(false)}
+              style={{ cursor: 'pointer'}}
             />
           </div>
           <div className={Style.PoolAdd_box_header_middle}>
@@ -81,16 +85,17 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
           <div className={Style.PoolAdd_box_header_right}>
             <p>
               {tokenOne.name || ""} {tokenOne.tokenBalance.slice(0, 9) || ""}
-              {""}
-              {""}
+              {" "}
+              {" "}
               {tokenTwo.name || ""} {tokenTwo.tokenBalance.slice(0, 9) || ""}
             </p>
             <Image
-              src={images.close}
+              src={images.setting}
               alt="image"
               width={50}
               height={50}
               onClick={() => setOpenModel(true)}
+              style={{ cursor: 'pointer'}}
             />
           </div>
         </div>
@@ -113,7 +118,7 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
                     height={20}
                   />
                 </p>
-                <p>{tokenOne.name || "ETH"}</p>
+                <p>{tokenOne.name || "select"}</p>
                 <p>🡫</p>
               </div>
               <div
@@ -194,7 +199,7 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
                 <div className={Style.PoolAdd_box_deposit_box_input}>
                   <p>
                     <small>{tokenOne.name || "ETH"}</small> {""}{" "}
-                    {tokenOne.symbol || "Ether"}
+                    {tokenOne.symbol || "Select"}
                   </p>
                 </div>
               </div>
@@ -219,8 +224,8 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
             <h4>Set Price Range</h4>
             <div className={Style.PoolAdd_box_price_right_box}>
               <p className={Style.PoolAdd_box_price_right_box_para}>
-                Current Price: 41.1494 {tokenOne.name || "ETH"} per{" "}
-                {tokenTwo.name || "Select"}
+                {/* Current Price: 41.1494 {tokenOne.name || "ETH"} per{" "} */}
+                {/* {tokenTwo.name || "Select"} */}
               </p>
               <Image src={images.wallet} alt="wallet" height={80} width={80} />
               <h3>Your position will appear here.</h3>
@@ -233,7 +238,7 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
                 <p>Min Price</p>
                 <input
                   type="number"
-                  placeholder="0.000"
+                  placeholder="1.000"
                   min="0.00"
                   step="0.001"
                   className={Style.PoolAdd_box_price_right_range_box_para}
@@ -248,7 +253,7 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
                 <p>Max Price</p>
                 <input
                   type="number"
-                  placeholder="0.000"
+                  placeholder="1.000"
                   min="0.00"
                   step="0.001"
                   className={Style.PoolAdd_box_price_right_range_box_para}
@@ -265,18 +270,33 @@ const PoolAdd = ({ setClosePool, tokenData, createLiquidityAndPool }) => {
 
             <div className={Style.PoolAdd_box_price_right_amount}>
               <button
-                onClick={() =>
-                  createLiquidityAndPool({
-                    tokenAddress0: tokenOne.tokenAddress,
-                    tokenAddress1: tokenTwo.tokenAddress,
-                    fee: fee,
-                    tokenPrice1: minPrice,
-                    tokenPrice2: maxPrice,
-                    slippage: slippage,
-                    deadline: deadline,
-                    tokenAmmountOne: tokenAmountOne,
-                    tokenAmmountTwo: tokenAmountTwo,
-                  })
+                onClick={() => {
+                    if(!tokenOne.tokenAddress || !tokenTwo.tokenAddress) {
+                        setError('please select token pair');
+                        setOpenError(true);
+                        return;
+                    }
+
+                    if(!tokenAmountOne || !tokenAmountTwo) {
+                      setError('please input deposit token amount ');
+                      setOpenError(true);
+                      return;
+                    }
+
+
+
+                    createLiquidityAndPool({
+                      tokenAddress0: tokenOne.tokenAddress,
+                      tokenAddress1: tokenTwo.tokenAddress,
+                      fee: fee,
+                      tokenPrice1: minPrice || 1,
+                      tokenPrice2: maxPrice || 1,
+                      slippage: slippage,
+                      deadline: deadline,
+                      tokenAmmountOne: tokenAmountOne,
+                      tokenAmmountTwo: tokenAmountTwo,
+                    })
+                  }
                 }
               >
                 Add Liquidity

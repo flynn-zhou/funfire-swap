@@ -7,6 +7,7 @@ import Style from "./Token.module.css";
 import images from "../../assets";
 import { Toggle } from "../index";
 
+
 const Token = ({
   setOpenSetting,
   setSlippage,

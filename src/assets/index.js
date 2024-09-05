@@ -13,6 +13,7 @@ import wallet from "./wallet.png";
 import arrowLeft from "./leftarrow.png";
 import tick from "./tick.png";
 import loading from "./loading.gif";
+import setting from "./setting.png";
 
 export default {
   uniswap,
@@ -30,4 +31,5 @@ export default {
   arrowLeft,
   tick,
   loading,
+  setting
 };

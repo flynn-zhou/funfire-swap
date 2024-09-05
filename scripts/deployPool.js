@@ -39,7 +39,7 @@ bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
 
 // const MAINNET_URL = "https://eth-mainnet.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw";
 // const MAINNET_URL = "http://localhost:8541";
-// const provider = new ethers.providers.JsonRpcProvider(MAINNET_URL);
+
 
 
 
@@ -70,7 +70,9 @@ function encodePriceSqrt(reserve1, reserve0) {
     // const [ signer] = await ethers.getSigners();
 
     // const [ signer, owner] = await ethers.getSigners();
-    const provider =  ethers.provider;
+    // const provider =  ethers.provider;
+    const provider =  new ethers.providers.JsonRpcProvider("https://ethereum-holesky.publicnode.com");
+// const provider =
     console.log(
       '111111111'
     );
@@ -110,16 +112,16 @@ function encodePriceSqrt(reserve1, reserve0) {
 
   async function main() {
     console.log('popUpAddress', popUpAddress, rayyanAddrss);
-    const shoRay = await deployPool(
+    const PopRay = await deployPool(
       popUpAddress,
       rayyanAddrss,
       3000,
       encodePriceSqrt(1, 1)
     );
   
-    console.log("SHO_RAY=", `'${shoRay}'`);
+    console.log("Pop_Ray=", `'${PopRay}'`);
 
-    let addresses = [`shoRay=${shoRay}`];
+    let addresses = [`PopRay=${PopRay}`];
     const data = "\n" + addresses.join("\n");
     const writeFile = promisify(fs.appendFile);
     const filePath = ".env";
