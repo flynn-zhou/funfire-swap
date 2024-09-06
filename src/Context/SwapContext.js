@@ -250,8 +250,8 @@ export const SwapTokenContextProvider = ({ children }) => {
       // await weth.deposit({ value: amountIn });
       // console.log(amountIn);
       const approveTrans = await token1Contract.approve(singleSwapToken.address, amountIn);
-      await approveTrans.wait()
-      // const receipt = await provider.waitForTransaction(approveTrans.hash, 6, 0);
+      // await approveTrans.wait()
+      const receipt = await provider.waitForTransaction(approveTrans.hash, 1, 0);
       // console.log("receipt", receipt);
       // provider
       //SWAP
