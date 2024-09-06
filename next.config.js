@@ -8,6 +8,7 @@ const getALlEnv = () => {
          NODE_ENV,
         NEXT_RUNTIME,
         __NEXT_PROCESSED_ENV,
+        NODE_OPTIONS,
          ...rest } = process.env;
       return {
           ...rest,
