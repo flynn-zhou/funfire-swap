@@ -15,7 +15,7 @@
 }
 
 .PoolConnect_box_header p{
-    background-color: #CFF80B;
+    background-color: #ED6094;
     padding: .5rem 1rem;
     border-radius: .5rem;
     color: #1E1E1E;
@@ -28,7 +28,7 @@
 }
 
 .PoolConnect_box_Middle button{
-    background-color: #CFF80B;
+    background-color: #ED6094;
     color: #1E1E1E;
     border: 0;
     font-size: 1.5rem;
@@ -49,7 +49,7 @@
 
 .PoolConnect_box_info_right,
 .PoolConnect_box_info_left{
-    border: 1px solid #CFF80B;
+    border: 1px solid #ED6094;
     padding: .5rem;
     border-radius: .5rem;
 }
@@ -58,7 +58,7 @@
 
 
 .PoolConnect_box_liquidity_box{
-   border: 1px solid #CFF80B;
+   border: 1px solid #ED6094;
     border-radius: .5rem;
     padding: 1rem;
     line-height: 0;
@@ -73,7 +73,7 @@
 }
 
 .mark{
-  background-color: #CFF80B;
+  background-color: #ED6094;
   color: #1E1E1E;
   padding: .5rem;
   border-radius: .5rem;
@@ -84,7 +84,7 @@
 }
 
 .highlight{
-    background-color: #CFF80B;
+    background-color: #ED6094;
     border-radius: .5rem;
     padding: 1rem .5rem;
     color: #1E1E1E;

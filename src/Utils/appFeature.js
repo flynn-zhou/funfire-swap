@@ -16,7 +16,11 @@ import {
     IDAI,
     userStorageDataAddrss,
     userStorageDataABI,
+    faucetAddress,
+    faucetABI
   } from "../Context/constants";
+
+  import FaucetJson from '../Context/Faucet.json';
 
 export const checkIfWalletConnected = async () => {
     try {
@@ -212,3 +216,48 @@ export const connectingWithSelfCreatedToken = async(tokenName, address) => {
     console.log(error);
   }
 }
+
+export const fetchFaucetContract = async (signerOrProvider,) => {
+  // const contractFile = await import(`../Context/${tokenName}.json`)
+  return  new ethers.Contract(
+    faucetAddress,
+    faucetABI,
+    signerOrProvider
+  );
+}
+
+export const connectWithFaucet = async() => {
+  try {
+    const web3modal = new Web3Modal();
+    const connection = await web3modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = await provider.getSigner();
+    const contract = await fetchFaucetContract(signer);
+    return contract;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const changeNetwork = async ({ networkName }) => {
+  try {
+    if (!window.ethereum) throw new Error("No crypto wallet found");
+    const result  =  await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{  chainId: `0x${Number(11155111).toString(16)}`,}],
+      // params: [
+      //   {
+      //     ...networks[networkName],
+      //   },
+      // ],
+    });
+    // console.log('wallet_switchEthereumChain', result)
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+export const handleNetworkSwitch = async () => {
+  const networkName = "sepolia";
+  await changeNetwork({ networkName });
+};

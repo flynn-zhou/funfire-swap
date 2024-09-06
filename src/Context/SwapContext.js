@@ -7,7 +7,7 @@ import { Token, CurrencyAmount, TradeType, Percent } from "@uniswap/sdk-core";
 import axios from "axios";
 import {
   checkIfWalletConnected,
-  connectWallet,
+  // connectWallet,
   connectingWithBooToken,
   connectingWithLIfeToken,
   connectingWithSelfCreatedToken,
@@ -16,6 +16,8 @@ import {
   connectingWithDAIToken,
   connectingWithUserStorageContract,
   connectingWithMultiHopContract,
+  connectWithFaucet,
+  handleNetworkSwitch,
 } from "../Utils/appFeature";
 
 import { IWETHABI } from "./constants";
@@ -27,6 +29,8 @@ import { swapUpdatePrice } from "../Utils/swapUpdatePrice";
 import { addLiquidityExternal } from "../Utils/addLiquidity";
 import { getLiquidityData } from "../Utils/checkLiquidity";
 import { connectingWithPoolContract } from "../Utils/deployPool";
+import { getTokenHoldingList } from "../Utils/priceHelpers";
+
 
 export const SwapTokenContext = React.createContext();
 
@@ -68,6 +72,31 @@ export const SwapTokenContextProvider = ({ children }) => {
     // "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
   ];
 
+
+  const connectWallet = async () => {
+    if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
+      try {
+        /* get provider */
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        /* get accounts */
+        const accounts = await provider.send("eth_requestAccounts", []);
+        /* set active wallet address */
+        setAccount(accounts[0])
+        const network = await provider.getNetwork();
+        if(network.name !== 'Sepolia') {
+          await handleNetworkSwitch();
+        }
+      } catch (err) {
+        setError(err.message)
+        setOpenError(true)
+      }
+    } else {
+      /* MetaMask is not installed */
+      setError('Please install MetaMask')
+      setOpenError(true)
+    }
+  }
+  
   const gerProvider = async (network) => {
     if(network === 'sepolia') {
       const SEPOLIA_URL = "https://eth-sepolia.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw"
@@ -85,37 +114,32 @@ export const SwapTokenContextProvider = ({ children }) => {
   //FETCH DATA
   const fetchingData = async () => {
     try {
-
-
-
-
       //GET USER ACCOUNT
       const userAccount = await checkIfWalletConnected();
 
       setAccount(userAccount);
       //CREATE PROVIDER
       const provider = await gerProvider('')
-      const signer = provider.getSigner();
+      const signer = provider.getSigner(process.env.ownerAddress);
 
-      // console.log('provider123', await provider.getSigner().getAddress());
       //CHECK Balance
       const balance = await provider.getBalance(userAccount);
 
       const convertBal = BigNumber.from(balance).toString();
       const ethValue = ethers.utils.formatEther(convertBal);
-      console.log('balance', ethValue);
       setEther(ethValue);
 
 
       //GET NETWORK
-      const newtork = await provider.getNetwork();
-      setNetworkConnect(newtork.name);
-      console.log('newtork', newtork);
+      const network = await provider.getNetwork();
+      setNetworkConnect(network.name);
+      if(network.name !== 'Sepolia') {
+        await handleNetworkSwitch();
+      }
       let tmpTokenArry = []
       //ALL TOKEN BALANCE AND DATA
       addToken.map(async (el, i) => {
         //GETTING CONTRACT
-        console.log('wtf is el', el);
         const contract = new ethers.Contract(el, ERC20, provider);
 
         //GETTING BALANCE OF TOKEN
@@ -132,27 +156,24 @@ export const SwapTokenContextProvider = ({ children }) => {
           symbol: symbol,
           tokenBalance: convertTokenBal,
           tokenAddress: el,
+          tokenInstance:contract,
         });
       });
-      console.log('tmpTokenArry', tmpTokenArry, tokenData);
       setTokenData(tmpTokenArry)
 
       // //GET LIQUDITY
       const userStorageData = await connectingWithUserStorageContract();
       const userLiquidity = await userStorageData.getAllTransactions();
-      console.log('userLiquidity', userLiquidity);
 
 
       let tmpLiquidityArr = []
       let promiseTogetAll = new Promise((resolve, reject) => {
         userLiquidity.forEach(async (el, i) => {
-          console.log('hello there', el)
           const liquidityData = await getLiquidityData(
             el.poolAddress,
             el.tokenAddress0,
             el.tokenAddress1
           );
-          console.log('liquidityData', liquidityData);
           tmpLiquidityArr.push(liquidityData);
           if (i === userLiquidity.length - 1) {
             resolve()
@@ -163,8 +184,6 @@ export const SwapTokenContextProvider = ({ children }) => {
       promiseTogetAll.then(() => {
         setGetAllLiquidity(tmpLiquidityArr)
       })
-      // console.log('execuseme2', tmpLiquidityArr);
-
 
       // const wth = await connectingWithIWTHToken()
       // const userBalancewth = await wth.balanceOf(userAccount);
@@ -200,7 +219,6 @@ export const SwapTokenContextProvider = ({ children }) => {
       let weth;
       let dai;
       singleSwapToken = await connectingWithSingleSwapToken();
-      // console.log('singleSwapToken'. singleSwapToken);
       weth = await connectingWithIWTHToken();
       // dai = await connectingWithDAIToken();
 
@@ -216,11 +234,9 @@ export const SwapTokenContextProvider = ({ children }) => {
         inputAmount.toString(),
         decimals0
       );
-
-      // console.log('tokenOneContract', tokenOneContract);
-      console.log('token1', token1, inputAmount, amountIn)
-      console.log('token2', token2)
-      console.log('singleSwapToken', singleSwapToken.address, singleSwapToken)
+      // console.log('token1', token1, inputAmount, amountIn)
+      // console.log('token2', token2)
+      // console.log('singleSwapToken', singleSwapToken.address, singleSwapToken)
 
 
       // await weth.deposit({ value: amountIn });
@@ -228,7 +244,7 @@ export const SwapTokenContextProvider = ({ children }) => {
       const approveTrans = await token1Contract.approve(singleSwapToken.address, amountIn);
       // await approveTrans.wait()
       const receipt = await provider.waitForTransaction(approveTrans.hash, 6, 0);
-      console.log("receipt", receipt);
+      // console.log("receipt", receipt);
       // provider
       //SWAP
 
@@ -241,12 +257,12 @@ export const SwapTokenContextProvider = ({ children }) => {
         }
       );
       await transaction.wait();
-      console.log('transaction', transaction);
+      // console.log('transaction', transaction);
       const balance = await token2Contract.balanceOf(account);
       const transferAmount = BigNumber.from(balance).toString();
       const ethValue = ethers.utils.formatEther(transferAmount);
       setDai(ethValue);
-      console.log("token2Contract balance:", ethValue);
+      // console.log("token2Contract balance:", ethValue);
       setLoading(false)
       setError('Swap Success')
       setOpenError(true)
@@ -331,17 +347,17 @@ export const SwapTokenContextProvider = ({ children }) => {
 
     try {
       setLoading(true)
-      console.log(
-        tokenAddress0,
-        tokenAddress1,
-        fee,
-        tokenPrice1,
-        tokenPrice2,
-        slippage,
-        deadline,
-        tokenAmmountOne,
-        tokenAmmountTwo
-      );
+      // console.log(
+      //   tokenAddress0,
+      //   tokenAddress1,
+      //   fee,
+      //   tokenPrice1,
+      //   tokenPrice2,
+      //   slippage,
+      //   deadline,
+      //   tokenAmmountOne,
+      //   tokenAmmountTwo
+      // );
       //CREATE POOL
       const createPool = await connectingWithPoolContract(
         tokenAddress0,
@@ -355,7 +371,7 @@ export const SwapTokenContextProvider = ({ children }) => {
       );
 
       const poolAddress = createPool;
-      console.log('poolAddress', poolAddress);
+      // console.log('poolAddress', poolAddress);
 
       //CREATE LIQUIDITY
       const info = await addLiquidityExternal(
@@ -366,7 +382,7 @@ export const SwapTokenContextProvider = ({ children }) => {
         tokenAmmountOne,
         tokenAmmountTwo
       );
-      console.log('addLiquidityExternal', info);
+      // console.log('addLiquidityExternal', info);
 
       //ADD DATA
       const userStorageData = await connectingWithUserStorageContract();
@@ -388,20 +404,82 @@ export const SwapTokenContextProvider = ({ children }) => {
     }
   };
 
+
+  const addWalletListener = async () => {
+    if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        setAccount(accounts[0]);
+      });
+    } else {
+      /* MetaMask is not installed */
+      setAccount("");
+      setError('Please install MetaMask')
+      setOpenError(true)
+    }
+  };
+
   useEffect(() => {
     fetchingData()
+
     if (typeof window !== "undefined") {
-      // alert('123')
-      // @ts-ignore
-      console.log('here i am ')
       window.Browser = {
         T: () => {
         }
       };
     }
-    // singleSwapToken();
   }, []);
-  // const topTokensList = []
+
+
+  useEffect(() => {
+    addWalletListener();
+  }, [account]);
+
+  const sentTokenToGuest = async (closeModal, guestAddress = '0xC67aFa635A9210206E4BB0cb60cDFC5E58851cFA') => {
+    setLoading(true)
+    if(!account) {
+      setError('Please connect to metamask wallet ')
+      setOpenError(true)
+    }
+    const faucetContract = await connectWithFaucet();
+    try {
+      await faucetContract.requestTokens()
+      closeModal(false)
+      setLoading(false)
+
+      setError('Transfer success')
+      setOpenError(true)
+
+      tokenData.forEach(async (item) => {
+          const userBalance = await item.tokenInstance.balanceOf(guestAddress);
+          const tokenAmount = ethers.utils.formatEther(BigNumber.from(userBalance).toString());
+          if(tokenAmount > 0) {
+            const wasAdded = await ethereum.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC20', // Initially only supports ERC20, but eventually more!
+                options: {
+                  address: item.tokenAddress, // The address that the token is at.
+                  symbol: item.symbol, // A ticker symbol or shorthand, up to 5 chars.
+                  decimals: 18, // The number of decimals in the token
+                  // image: tokenImage, // A string url of the token logo
+                },
+              },
+            });
+          
+            if (wasAdded) {
+              console.log('add token to wallet');
+            } else {
+              console.log('fail to add token');
+            }
+          }
+      })
+
+    } catch(error) {
+      setError(error)
+      setOpenError(true)
+      setLoading(false)
+    }
+  }
   return (
     <SwapTokenContext.Provider
       value={{
@@ -425,7 +503,8 @@ export const SwapTokenContextProvider = ({ children }) => {
         getPrice,
         swapUpdatePrice,
         addLiquidityExternal,
-        createLiquidityAndPool
+        createLiquidityAndPool,
+        sentTokenToGuest
       }}
     >
       {children}

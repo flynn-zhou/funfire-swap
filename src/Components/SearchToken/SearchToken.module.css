@@ -18,7 +18,7 @@
 .SearchToken_box_search{
     display: flex;
     align-items: center;
-    background-color: #cff80b;
+    background-color: #ED6094;
     padding: .5rem 1rem;
     border-radius: .5rem;
     gap: 1rem;
@@ -44,7 +44,7 @@
     display: flex;
     align-items: center;
     gap: .2rem;
-    border: 2px solid #cff80b;
+    border: 2px solid #ED6094;
     width: 5.7rem;
     padding: .3rem;
     border-radius: 1rem;
@@ -52,7 +52,7 @@
 }
 
 .active{
-    background-color: #cff80b;
+    background-color: #ED6094;
     color: #1e1e1e;
 }
 

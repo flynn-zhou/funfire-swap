@@ -57,9 +57,9 @@ module.exports = {
       blcokConfirmations: 6,
   },
     hardhat: {
-      forking: {
-        url: "https://eth-mainnet.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw",
-      }
+      // forking: {
+      //   url: "https://eth-mainnet.g.alchemy.com/v2/dHmlLhgtpGD912yKoLHv37ggEsm3ziRw",
+      // }
     }
 
   },

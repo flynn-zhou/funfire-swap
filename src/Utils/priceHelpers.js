@@ -10,6 +10,14 @@ exports.getAbi = async (address) => {
   return abi;
 };
 
+exports.getTokenHoldingList = async(address) => {
+  const url = `https://api.etherscan.io/api?module=account&action=addresstokenbalance&address=${address}&page=1&offset=100&apikey=${ETHERSCAN_API_KEY}`
+  const res = await axios.get(url);
+  console.log();
+  const result = JSON.parse(res.data.result);
+  return result;
+}
+
 exports.getPoolImmutables = async (poolContract) => {
   const [token0, token1, fee] = await Promise.all([
     poolContract.token0(),

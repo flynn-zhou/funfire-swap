@@ -19,20 +19,23 @@ const Tokens = () => {
 
 
   const onHandleSearch = (value) => {
-    const filteredTokens = topTokenList.filter(({ name }) =>
-      name.toLowerCase().includes(value.toLowerCase())
+    const filteredTokens = topTokenList.filter(({ symbol }) => {
+     return symbol.toLowerCase().includes(value.toLowerCase())
+    }
     );
 
+    console.log('filteredTokens', filteredTokens);
+
     if (filteredTokens.length === 0) {
-      setAllTokenList(copyAllTokenList);
+      setTopTokenList(copyAllTokenList);
     } else {
-      setAllTokenList(filteredTokens);
+      setTopTokenList(filteredTokens);
     }
   };
 
   const onClearSearch = () => {
     if (topTokenList.length && copyAllTokenList.length) {
-      setAllTokenList(copyAllTokenList);
+      setTopTokenList(copyAllTokenList);
     }
   };
  
@@ -62,6 +65,7 @@ const Tokens = () => {
       setLoading(true);
       const axiosData = await axios.post(URL, { query: query });
       setTopTokenList(axiosData.data.data.tokens)
+      setCopyAllTokenList(axiosData.data.data.tokens)
       setLoading(false)
     }
     fetchTokens()

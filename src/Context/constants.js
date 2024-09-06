@@ -4,6 +4,7 @@ import singleSwapToken from "./SingleSwapToken.json";
 import swapMultiHop from "./SwapMultiHop.json";
 import userStorgeData from './UserStorageData.json';
 import IWETH from "./IWETH.json";
+import faucet from './Faucet.json'
 
 // export const BooTokenAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 export const BooTokenAddress = '0x0B306BF915C4d645ff596e518fAf3F9669b97016'
@@ -26,6 +27,10 @@ export const SwapMultiHopABI = swapMultiHop.abi;
 export const userStorageDataAddrss = process.env.userStorageData;
 export const userStorageDataABI = userStorgeData.abi;
 
+//Faucet Data
+export const faucetAddress = process.env.faucet;
+export const faucetABI = faucet.abi;
+
 //IWETH
 export const IWETHAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 export const IWETHABI = IWETH.abi;
@@ -33,3 +38,5 @@ export const IWETHABI = IWETH.abi;
 //Dai
 export const IDAIAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 export const IDAI = IWETH.abi;
+
+

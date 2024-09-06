@@ -18,6 +18,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 
+
 const override = {
   position: "absolute",
   top: 100,
@@ -29,10 +30,19 @@ const override = {
 };
 
 const NavBar = () => {
-  const { ether, account, networkConnect, connectWallet, tokenData, loading, setLoading,
+  const { 
+    ether, 
+    account, 
+    networkConnect, 
+    connectWallet, 
+    tokenData, 
+    loading, 
+    setLoading,
     openError,
     setOpenError,
-    error, } =
+    error,
+    sentTokenToGuest
+   } =
     useContext(SwapTokenContext);
 
   const notify = (message) => toast(message);
@@ -55,6 +65,8 @@ const NavBar = () => {
   const [openModel, setOpenModel] = useState(false);
   const [openTokenBox, setOpenTokenBox] = useState(false);
   let [color, setColor] = useState("#4C5773");
+  let [isOpenRequestToken , setIsOpenRequestToken] = useState(false)
+
 
   useEffect(() => {
     if (openError) {
@@ -71,8 +83,8 @@ const NavBar = () => {
       <div className={Style.NavBar_box}>
         <div className={Style.NavBar_box_left}>
           {/* //LOGO IMAGE  */}
-          <div className={Style.NavBar_box_left_img}>
-            <Image src={images.uniswap} alt="logo" width={50} height={50} />
+          <div>
+            <Image src={images.uniswap} alt="logo" width={50} height={50}  className={Style.NavBar_box_left_img}/>
           </div>
           {/* MENU ITEMS */}
 
@@ -82,6 +94,12 @@ const NavBar = () => {
                 <p className={Style.NavBar_box_left_menu_item}>{el.name}</p>
               </Link>
             ))}
+            {
+            <p 
+              onClick={() => setIsOpenRequestToken(!isOpenRequestToken)}
+              className={Style.NavBar_box_left_menu_requestTokens}
+              >Faucet</p>
+            }
           </div>
         </div>
         {/* //Middle SECTION */}
@@ -151,6 +169,26 @@ const NavBar = () => {
         </div>
 
       }
+        {
+          isOpenRequestToken &&
+          <div className={Style.request_token_modal}>
+              <div>This will send 100 POP, SHO and RAY tokens to your sepolia account for testing purpose.</div>
+              <div className={Style.request_token_modal_buttons}>
+              < button
+                  onClick={() => setIsOpenRequestToken(false)}
+                  className={Style.request_token_modal_buttons_cancel}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => sentTokenToGuest(setIsOpenRequestToken)}
+                  className={Style.request_token_modal_buttons_ok}
+                >
+                  Confirm
+                </button>
+              </div>
+          </div>
+        }
     </div>
   );
 };

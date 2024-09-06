@@ -8,7 +8,7 @@ import images from "./../../assets";
 
 const Model = ({ setOpenModel, connectWallet }) => {
   //USESTATE
-  const walletMenu = ["MetaMask", "Coinbase", "Wallet", "WalletConnet"];
+  const walletMenu = ["MetaMask"];
   return (
     <div className={Style.Model}>
       <div className={Style.Model_box}>
@@ -27,7 +27,10 @@ const Model = ({ setOpenModel, connectWallet }) => {
 
         <div className={Style.Model_box_wallet}>
           {walletMenu.map((el, i) => (
-            <p key={i + 1} onClick={() => connectWallet()}>
+            <p key={i + 1} onClick={() => {
+                setOpenModel(false);
+                connectWallet();
+                }}>
               {el}
             </p>
           ))}
