@@ -9,6 +9,7 @@ const getALlEnv = () => {
         NEXT_RUNTIME,
         __NEXT_PROCESSED_ENV,
         NODE_OPTIONS,
+        __VERCEL_BUILD_RUNNING,
          ...rest } = process.env;
       return {
           ...rest,
