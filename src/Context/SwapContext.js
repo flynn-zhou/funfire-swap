@@ -78,14 +78,17 @@ export const SwapTokenContextProvider = ({ children }) => {
       try {
         /* get provider */
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        /* get accounts */
-        const accounts = await provider.send("eth_requestAccounts", []);
-        /* set active wallet address */
-        setAccount(accounts[0])
+
         const network = await provider.getNetwork();
         if(network.name !== 'Sepolia') {
           await handleNetworkSwitch();
         }
+
+        /* get accounts */
+        const accounts = await provider.send("eth_requestAccounts", []);
+        /* set active wallet address */
+        setAccount(accounts[0])
+
       } catch (err) {
         setError(err.message)
         setOpenError(true)
@@ -114,13 +117,23 @@ export const SwapTokenContextProvider = ({ children }) => {
   //FETCH DATA
   const fetchingData = async () => {
     try {
+
+      //CREATE PROVIDER
+      const provider = await gerProvider('')
+      const signer = provider.getSigner();
+
+      //GET NETWORK
+      const network = await provider.getNetwork();
+      setNetworkConnect(network.name);
+      if(network.name !== 'Sepolia') {
+        await handleNetworkSwitch();
+      }
+
       //GET USER ACCOUNT
       const userAccount = await checkIfWalletConnected();
 
       setAccount(userAccount);
-      //CREATE PROVIDER
-      const provider = await gerProvider('')
-      const signer = provider.getSigner(process.env.ownerAddress);
+
 
       //CHECK Balance
       const balance = await provider.getBalance(userAccount);
@@ -130,12 +143,7 @@ export const SwapTokenContextProvider = ({ children }) => {
       setEther(ethValue);
 
 
-      //GET NETWORK
-      const network = await provider.getNetwork();
-      setNetworkConnect(network.name);
-      if(network.name !== 'Sepolia') {
-        await handleNetworkSwitch();
-      }
+
       let tmpTokenArry = []
       //ALL TOKEN BALANCE AND DATA
       addToken.map(async (el, i) => {

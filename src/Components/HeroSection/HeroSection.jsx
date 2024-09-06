@@ -131,7 +131,7 @@ const HeroSection = ({}) => {
               alt="ether"
             />
             {tokenOne.symbol || "select"}
-            <small>{tokenOne.tokenBalance.slice(0, 7)}</small>
+            <small>{tokenOne.tokenBalance.slice(0, 9)}</small>
             {/* <small>{ether.slice(0, 7)}</small> */}
           </button>
         </div>
@@ -158,7 +158,7 @@ const HeroSection = ({}) => {
               alt="ether"
             />
             {tokenTwo.symbol || "select"}
-            <small>{tokenTwo.tokenBalance.slice(0, 7)}</small>
+            <small>{tokenTwo.tokenBalance.slice(0, 9)}</small>
           </button>
         </div>
 
