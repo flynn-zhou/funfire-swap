@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,11 +13,8 @@ import { SwapTokenContext } from "../../Context/SwapContext";
 
 import PuffLoader from "react-spinners/PuffLoader";
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const override = {
   position: "absolute",
@@ -30,20 +27,19 @@ const override = {
 };
 
 const NavBar = () => {
-  const { 
-    ether, 
-    account, 
-    networkConnect, 
-    connectWallet, 
-    tokenData, 
-    loading, 
+  const {
+    ether,
+    account,
+    networkConnect,
+    connectWallet,
+    tokenData,
+    loading,
     setLoading,
     openError,
     setOpenError,
     error,
-    sentTokenToGuest
-   } =
-    useContext(SwapTokenContext);
+    sentTokenToGuest,
+  } = useContext(SwapTokenContext);
 
   const notify = (message) => toast(message);
 
@@ -52,10 +48,10 @@ const NavBar = () => {
       name: "Swap",
       link: "/",
     },
-    {
-      name: "Tokens",
-      link: "/Tokens",
-    },
+    // {
+    //   name: "Tokens",
+    //   link: "/Tokens",
+    // },
     {
       name: "Pools",
       link: "/Pools",
@@ -65,17 +61,16 @@ const NavBar = () => {
   const [openModel, setOpenModel] = useState(false);
   const [openTokenBox, setOpenTokenBox] = useState(false);
   let [color, setColor] = useState("#4C5773");
-  let [isOpenRequestToken , setIsOpenRequestToken] = useState(false)
-
+  let [isOpenRequestToken, setIsOpenRequestToken] = useState(false);
 
   useEffect(() => {
     if (openError) {
-      notify(error)
+      notify(error);
       setTimeout(() => {
-        setOpenError(false)
-      }, 500)
+        setOpenError(false);
+      }, 500);
     }
-  }, [openError])
+  }, [openError]);
 
   // console.log('tokenData', tokenData);
   return (
@@ -84,7 +79,13 @@ const NavBar = () => {
         <div className={Style.NavBar_box_left}>
           {/* //LOGO IMAGE  */}
           <div>
-            <Image src={images.uniswap} alt="logo" width={50} height={50}  className={Style.NavBar_box_left_img}/>
+            <Image
+              src={images.uniswap}
+              alt="logo"
+              width={50}
+              height={50}
+              className={Style.NavBar_box_left_img}
+            />
           </div>
           {/* MENU ITEMS */}
 
@@ -95,10 +96,12 @@ const NavBar = () => {
               </Link>
             ))}
             {
-            <p 
-              onClick={() => setIsOpenRequestToken(!isOpenRequestToken)}
-              className={Style.NavBar_box_left_menu_requestTokens}
-              >Faucet</p>
+              <p
+                onClick={() => setIsOpenRequestToken(!isOpenRequestToken)}
+                className={Style.NavBar_box_left_menu_requestTokens}
+              >
+                Faucet
+              </p>
             }
           </div>
         </div>
@@ -143,21 +146,26 @@ const NavBar = () => {
         position="top-center"
         autoClose={3000}
         theme="dark"
-      // hideProgressBar={false}
-      // newestOnTop={false}
-      // closeOnClick
-      // rtl={false}
-      // pauseOnFocusLoss
-      // draggable
-      // pauseOnHover
-      // theme="light"
-      // transition="Bounce"
+        // hideProgressBar={false}
+        // newestOnTop={false}
+        // closeOnClick
+        // rtl={false}
+        // pauseOnFocusLoss
+        // draggable
+        // pauseOnHover
+        // theme="light"
+        // transition="Bounce"
       />
 
-      {
-        loading &&
-
-        <div style={{ width: '100%', height: '100vh', position: 'fixed', zIndex: '22222222'}}>
+      {loading && (
+        <div
+          style={{
+            width: "100%",
+            height: "100vh",
+            position: "fixed",
+            zIndex: "22222222",
+          }}
+        >
           <PuffLoader
             color={color}
             loading={loading}
@@ -167,28 +175,29 @@ const NavBar = () => {
             data-testid="loader"
           />
         </div>
-
-      }
-        {
-          isOpenRequestToken &&
-          <div className={Style.request_token_modal}>
-              <div>This will send 100 POP, SHO and RAY tokens to your sepolia account for testing purpose.</div>
-              <div className={Style.request_token_modal_buttons}>
-              < button
-                  onClick={() => setIsOpenRequestToken(false)}
-                  className={Style.request_token_modal_buttons_cancel}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => sentTokenToGuest(setIsOpenRequestToken)}
-                  className={Style.request_token_modal_buttons_ok}
-                >
-                  Confirm
-                </button>
-              </div>
+      )}
+      {isOpenRequestToken && (
+        <div className={Style.request_token_modal}>
+          <div>
+            This will send 100 POP, SHO and RAY tokens to your sepolia account
+            for testing purpose.
           </div>
-        }
+          <div className={Style.request_token_modal_buttons}>
+            <button
+              onClick={() => setIsOpenRequestToken(false)}
+              className={Style.request_token_modal_buttons_cancel}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => sentTokenToGuest(setIsOpenRequestToken)}
+              className={Style.request_token_modal_buttons_ok}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
